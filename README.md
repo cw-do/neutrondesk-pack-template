@@ -10,6 +10,22 @@ build time and never fetches it while running.
 **The full format is [FORMAT.md](https://github.com/cw-do/neutrondesk-pack-check/blob/main/FORMAT.md)**,
 published with the check tool. Read its "Making a pack, step by step" first.
 
+## Two ways in
+
+**You already have an instrument agent** (one built on ORNL's neutron-agent
+template, with a system prompt, a corpus of modules, scan functions, Python
+tools and tests). Then the pack is that work in the shape the app can ship,
+and most of the move is mechanical. [AGENTS.md](./AGENTS.md) is the
+conversion guide, written so a coding agent can follow it: the mapping table,
+what to drop, the standard for porting code (identical to the Python, proven
+by a reference file and `npm test`), and the values it must ask you for. It
+ends with a prompt to hand to Codex or Claude Code together with your source
+repository's URL. [neutrondesk-pack-eqsans](https://github.com/cw-do/neutrondesk-pack-eqsans)
+is the finished conversion of `eqsans-agent-for-ndesk`.
+
+**You are starting from nothing.** Follow "Start here" below; every example
+file in this repository has its rules written inside it.
+
 ## Start here
 
 ```bash
