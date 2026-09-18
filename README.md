@@ -102,11 +102,12 @@ default-exports a factory; see FORMAT.md, and
 [neutrondesk-pack-eqsans](https://github.com/cw-do/neutrondesk-pack-eqsans)
 for a complete example with tools, cases and goldens.
 
-`agent/scan-functions.txt` belongs to this category too. The app splits it
-into named functions and hands them to your code; it does not read them
-itself. If you want "what does `runsampleid` take?" answered from the real
-source, copy EQSANS's `scanFunctions.ts` and its two lookup tools. Without
-code, leave the file out and describe your commands in a module.
+`agent/scan-functions.txt` needs no code. If your instrument is scripted in
+Python, put the scan-function source there and the app itself adds two tools
+(`list_scan_functions`, `lookup_scan_function`) that answer "what does
+`runsampleid` take?" from the real source. Those two names are reserved for
+the app; a pack that wants its own reader gives it another name. If your
+commands are not Python, leave the file out and describe them in a module.
 
 ## Rules the check enforces
 

@@ -37,12 +37,12 @@ Read these before starting, in this order:
 |---|---|---|
 | `system_prompt.md` | `agent/system-prompt.md` | Keep the instrument's own rules; remove what the app already provides (section 2) |
 | `corpus/<id>/module*.md` (the reference markdown, wherever it lives) | `agent/modules/` | Copy verbatim, same file names. Do not merge or rewrite |
-| the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file. It is only read by the pack's own lookup tools (next rows); if the source has no such file or no such tools, leave it out |
+| the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file. The app builds `list_scan_functions` and `lookup_scan_function` over it; if the source has no such file, leave it out |
 | instrument configuration/calibration files (`.sav` etc.; in `corpus/<id>/…` or `knowledge/…`) | `data/<folder>/` | Copy verbatim. The folder name under `data/` is your choice; the pack's own code reads it by that name (EQSANS uses `data/qrange-configs/`) |
 | `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4. Put the instrument's own domain words (its id, its reduction tool) in `agent.retrievalTerms` |
 | `src/<id>_agent/tools.py` (tool definitions) | `src/tools.ts` | Same names and descriptions; parameter schemas derived from the pydantic models (section 3.2); port `run` bodies |
 | `src/<id>_agent/*.py` calculators (`qrange.py`, `scriptgen.py`, parsers of the data files) | `src/<name>.ts`, any file names | Port faithfully (section 3) |
-| `src/<id>_agent/scanfunctions.py` | `src/scanFunctions.ts` or similar | Port the **lookup** (name and keyword search, with Python's code-point sort order). Do not port its file parser: the app splits `agent/scan-functions.txt` at each top-level `def`, folds duplicate names as a dict would, and hands the pack the list (`api.knowledge.scanFunctions`) |
+| `src/<id>_agent/scanfunctions.py` and the source's `list_scan_functions` / `lookup_scan_function` tools | nothing | The app provides both tools over `agent/scan-functions.txt` (split at each top-level `def`, duplicate names folded as a dict would, code-point ordering). Do not port; the names are reserved and the check refuses a pack that defines them. The pack's code still receives the list as `api.knowledge.scanFunctions` if it wants a reader of its own under another name |
 | `tests/test_tools.py` and other tests that call tools | `checks/cases.json` `toolRuns` | Section 3.5 says which transfer and which do not |
 | `tests/test_retriever.py` (question → expected document) | `checks/cases.json` `retrieval` | Section 3.5 |
 | `src/<id>_agent/oncat.py`, `catalog_commands.py`, and the prompt's catalogue section | nothing | The app provides `list_ipts_catalog`, `get_latest_run` and `list_experiments` (the last covers `search_ipts_by_member`). Do not port; drop the prompt section that describes catalogue tools |
@@ -118,9 +118,8 @@ bitten, each of which the reference comparison (3.4) will catch:
   Data files may start with one.
 - A Python `dict` built from a list keeps the last of duplicate keys and
   drops the count; a JavaScript array keeps both. For scan functions the
-  app's loader already folds duplicates that way (first position, last body)
-  before the pack sees `api.knowledge.scanFunctions`, and the check warns
-  about them; for any data file the pack parses itself, the trap is yours.
+  app already folds duplicates that way and provides the lookup; for any
+  data file the pack parses itself, the trap is yours.
 - `repr(float)` and JavaScript number formatting differ (`1.0` vs `1`,
   exponent thresholds). Write formatting helpers that reproduce Python's
   output where it reaches a script or a message.
@@ -206,7 +205,8 @@ Imports only from `./`/`../` inside `src/` and `import type … from
 `src/`, **including comments** (the check is a substring scan; "the process."
 in a comment fails); strict TypeScript without the DOM library (no `console`);
 `package.json` `dependencies` empty; tool names `snake_case`, unique, not
-`list_ipts_catalog`, `get_latest_run` or `list_experiments`.
+`list_ipts_catalog`, `get_latest_run`, `list_experiments`,
+`list_scan_functions` or `lookup_scan_function`.
 
 ## 4. Ask, do not guess
 
