@@ -18,10 +18,43 @@ tools and tests). Then the pack is that work in the shape the app can ship,
 and most of the move is mechanical. [AGENTS.md](./AGENTS.md) is the
 conversion guide, written so a coding agent can follow it: the mapping table,
 what to drop, the standard for porting code (identical to the Python, proven
-by a reference file and `npm test`), and the values it must ask you for. It
-ends with a prompt to hand to Codex or Claude Code together with your source
-repository's URL. [neutrondesk-pack-eqsans](https://github.com/cw-do/neutrondesk-pack-eqsans)
-is the finished conversion of `eqsans-agent-for-ndesk`.
+by a reference file and `npm test`), and the values it must ask you for.
+[neutrondesk-pack-eqsans](https://github.com/cw-do/neutrondesk-pack-eqsans)
+is the finished conversion of `eqsans-agent-for-ndesk`. Do it like this:
+
+1. Make your pack repository from this template and install the check tool.
+   ```bash
+   git clone https://github.com/cw-do/neutrondesk-pack-template.git neutrondesk-pack-<instrument>
+   cd neutrondesk-pack-<instrument>
+   rm -rf .git && git init
+   npm install
+   npm test          # the example pack passes; you now have a working check
+   ```
+2. Make sure the machine can read your source agent's repository (a clone on
+   disk, or credentials for its host). The coding agent will clone or read it.
+3. Open Codex or Claude Code **in this folder**. The prompt says "this
+   repository", and both tools read `AGENTS.md` (and `CLAUDE.md`) from the
+   folder they are started in. You do not need to show them this README.
+4. Paste the prompt from [AGENTS.md, section 6](./AGENTS.md#6-a-prompt-to-give-a-coding-agent)
+   with `<SOURCE REPO URL>` replaced by your agent repository's URL or local
+   path. Nothing else is needed.
+5. Answer what it asks. `AGENTS.md` section 4 lists the values it must not
+   guess: the ONCat instrument id, the capabilities, the blurb, the opening
+   questions, links, maintainers, whether you have guides and a PV list, the
+   licence. It will also show you the diff of the system-prompt split
+   (`checks/system-prompt.diff`) before porting code; read it.
+6. When it reports `npm test` passing, run it yourself, read
+   `checks/golden/` and `checks/reference/README.md`, delete
+   `checks/system-prompt.diff`, and check that the template's example
+   content is gone (`agent/modules/example-topic.md`,
+   `guides/example-guide.md`, the example entries in `pv/catalogue.json`
+   and `checks/cases.json`).
+7. Commit, push to your own repository, and hand the URL to the NeutronDesk
+   maintainer. `AGENTS.md` section 5 is the checklist for what "done" means.
+
+A test run of this guide converted `eqsans-agent-for-ndesk` in about 25
+minutes of agent time, including the Python reference; expect the questions
+in step 5 to be where your time goes.
 
 **You are starting from nothing.** Follow "Start here" below; every example
 file in this repository has its rules written inside it.
