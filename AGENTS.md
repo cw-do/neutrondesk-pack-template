@@ -28,15 +28,30 @@ Read these before starting, in this order:
 3. This repository's other files: each is an example with its rules inside it.
    Delete the example content (`agent/modules/example-topic.md`,
    `guides/example-guide.md`, the example entries in `pv/catalogue.json` and
-   `checks/cases.json`) once you have replaced it. `AGENTS.md`, `CLAUDE.md`
-   and `README.md` may stay or go; rewrite `README.md` either way.
+   `checks/cases.json`) once you have replaced it. Delete `AGENTS.md` and
+   `CLAUDE.md` too; they are the template's, not the pack's. Rewrite
+   `README.md`.
+
+## 0. Two shapes of source
+
+If the source has calculators or script builders (Python that computes
+something the assistant should get exactly right), everything below applies.
+
+If the source is **knowledge only** — a system prompt, a corpus of markdown,
+catalogue tools and nothing else, as `usans-agent` is — then sections 3.1 to
+3.4 and 3.6, the `selfCheck` and `checks/reference/` parts of section 5, and
+the porting steps in the section-6 prompt do not apply: there is no `src/`.
+The work is sections 1, 2, 3.5 (retrieval cases only) and 4. `npm run golden`
+then records nothing and says so; that is correct, not a failure. A pure
+knowledge-search tool in the source (`search_usans_knowledge`) is replaced by
+the app's retrieval and is not ported.
 
 ## 1. What maps to what
 
 | In the source agent | In the pack | Do |
 |---|---|---|
 | `system_prompt.md` | `agent/system-prompt.md` | Keep the instrument's own rules; remove what the app already provides (section 2) |
-| `corpus/<id>/module*.md` (the reference markdown, wherever it lives) | `agent/modules/` | Copy verbatim, same file names. Do not merge or rewrite |
+| `corpus/<id>/module*.md` (the reference markdown, wherever it lives) | `agent/modules/` | Copy verbatim, same file names. Do not merge or rewrite. A file's title is its Setext (`===`) or first-line ATX (`# `) heading; a file with neither gets its file name as title |
 | the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file. The app builds `list_scan_functions` and `lookup_scan_function` over it; if the source has no such file, leave it out |
 | instrument configuration/calibration files (`.sav` etc.; in `corpus/<id>/…` or `knowledge/…`) | `data/<folder>/` | Copy verbatim. The folder name under `data/` is your choice; the pack's own code reads it by that name (EQSANS uses `data/qrange-configs/`) |
 | `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4. Put the instrument's own domain words (its id, its reduction tool) in `agent.retrievalTerms` |
@@ -45,7 +60,8 @@ Read these before starting, in this order:
 | `src/<id>_agent/scanfunctions.py` and the source's `list_scan_functions` / `lookup_scan_function` tools | nothing | The app provides both tools over `agent/scan-functions.txt` (split at each top-level `def`, duplicate names folded as a dict would, code-point ordering). Do not port; the names are reserved and the check refuses a pack that defines them. The pack's code still receives the list as `api.knowledge.scanFunctions` if it wants a reader of its own under another name |
 | `tests/test_tools.py` and other tests that call tools | `checks/cases.json` `toolRuns` | Section 3.5 says which transfer and which do not |
 | `tests/test_retriever.py` (question → expected document) | `checks/cases.json` `retrieval` | Section 3.5 |
-| `src/<id>_agent/oncat.py`, `catalog_commands.py`, and the prompt's catalogue section | nothing | The app provides `list_ipts_catalog`, `get_latest_run` and `list_experiments` (the last covers `search_ipts_by_member`). Do not port; drop the prompt section that describes catalogue tools |
+| `src/<id>_agent/oncat.py`, `catalog_commands.py`, and the prompt's catalogue section | nothing | The app provides `list_ipts_catalog`, `get_latest_run` and `list_experiments` (the last covers `search_ipts_by_member`). Do not port; drop the prompt section that describes catalogue tools, and if a kept sentence names a source tool, rename it to the app's |
+| a knowledge-search tool (`search_<id>_knowledge` over the corpus) | nothing | The app retrieves modules for every question itself |
 | `src/<id>_agent/llm.py`, `reasoning.py`, `retriever.py`, `cli.py`, `smoke.py`, serving | nothing | The app is the runtime. Do not port |
 | `docs/source-pdfs/**`, any binary | nothing | Packs are text only. Cite them in `README.md` as sources |
 | `pyproject.toml`, `.venv`, checkpoints | nothing | |
@@ -93,9 +109,9 @@ Move the sentences that stay; do not rewrite them. Two edits are allowed and
 expected: fix a reference to a section you removed, and remove mentions of the
 source runtime's own mechanics (a `<retrieved_context>` tag name, a tool the
 app does not have). `{{INSTRUMENT_NAME}}` may be used and the app substitutes
-it. Never write `<!-- instrument -->`. When unattended, write the diff between
-the source prompt and yours to `checks/system-prompt.diff` for the human to
-read; delete it before the pack is handed over.
+it. Never write `<!-- instrument -->`. Write the diff between the source prompt
+and yours to `checks/system-prompt.diff` for the human to read; the human
+deletes it once read, before the pack is handed over.
 
 The EQSANS example paraphrased and rewrapped its prompt rather than moving
 sentences. That is the older practice; moving them is what this guide asks.
@@ -193,9 +209,20 @@ in the top five, or a word the retrieved text must contain.
 - A retriever test transfers as a `retrieval` case, but the app scores with
   IDF weighting, which the source's `knowledge.py` may not; if the expected
   module is not in the top five, widen `expect` to the modules that genuinely
-  answer the question rather than forcing the source's answer.
+  answer the question rather than forcing the source's answer. `expect` may
+  name a shared guide as `guide:oncat-access` if it is in `guides.order`.
+- A retriever test in Korean (or any language the corpus is not written in)
+  does not transfer. The app tokenises any script, but an English corpus
+  contains no Korean words to match, and the app has no synonym map yet
+  (see the pack README's gaps). Carry the English equivalent and note it.
+- With a small corpus (six modules, say) "one of the top five" excludes
+  almost nothing. Prefer `mustMention` with a phrase only the right document
+  contains, or check that the expected module is the only one in `expect`.
+- The source's "empty query returns nothing" or "k=0" tests have no
+  counterpart; leave them.
 
-Then `npm run golden` and commit the goldens.
+Then `npm run golden` and commit the goldens. For a pack without code it
+records nothing and says so.
 
 ### 3.6 What the check rejects
 
@@ -228,9 +255,12 @@ still ships a pack that is wrong in a way the reader cannot see.
 - **`agent.suggestions`**: one to six opening questions. Propose them from
   the modules; let the human choose.
 - **`agent.retrievalTerms`**: not a question, but set it. The instrument's id
-  in lower case and the names of its own tools and reduction software
-  (`["eqsans", "drtsans"]` for EQ-SANS). These are the words the source's
-  retriever treated as domain markers, if it had such a list.
+  in lower case and the single words that mark its domain: its reduction
+  software if it has one, the names its physics is known by (`["usans",
+  "bonse", "hart", "desmearing"]` for USANS). One word per entry; the match is
+  a substring test, so a two-word term never matches, and a hyphenated or
+  en-dashed name in the corpus (`Bonse–Hart`) must be split. If the source's
+  retriever had a domain-term list, start from it.
 - **`guides/`**: the source agent usually has none. Do not invent guides from
   modules. Ask whether the team has user-facing documents. With none,
   `guides.order` may be empty or list only the app's shared guide
@@ -240,7 +270,10 @@ still ships a pack that is wrong in a way the reader cannot see.
   search for by concept; if the team cannot say yet, ship an empty array and
   note it as a gap. Names are ONCat paths (`daslogs.<key>`), which the app
   shows under Run → Metadata; do not invent them.
-- **`links`**: the instrument's own pages.
+- **`links`**: the instrument's own pages. `group` is one of `start` (the
+  instrument's own documentation and home page), `reduce` (where reduction
+  runs), `data` (catalogue and proposals), `facility` (status, contacts, the
+  team).
 - **`LICENSE`**: the team's choice.
 
 ## 5. Done means
@@ -248,9 +281,10 @@ still ships a pack that is wrong in a way the reader cannot see.
 - `npm install && npm test` passes in the pack repository, including H28 when
   there is code, with no failures. Warnings are allowed only for things the
   human has seen.
-- `checks/golden/` is committed and a human has read it.
-- `checks/reference/` holds the Python-produced JSON, the script that made it,
-  and a README naming the source commit.
+- For a pack with code: `checks/golden/` is committed and a human has read
+  it, and `checks/reference/` holds the Python-produced JSON, the script that
+  made it, and a README naming the source commit. A pack without code has
+  neither.
 - `README.md` of the pack says what the instrument is, where each part came
   from (source repository and commit), what is a draft or a gap (section 4),
   which files must stay identical to a Python original, and any deliberate
@@ -274,9 +308,11 @@ disagree, AGENTS.md wins.
 
 Work in this order: copy the content files from git blobs; write pack.json with
 placeholders for the values in AGENTS.md section 4 and ask me for them; split the
-system prompt and write the diff to checks/system-prompt.diff; port the tools and
-calculators; write selfCheck; produce the reference JSON from the Python in the
-source repository; turn the tests into checks/cases.json; run `npm test` until it
-passes; run `npm run golden`; write the README. If I am not available, continue
-with clearly marked placeholders and list every guess in the README.
+system prompt and write the diff to checks/system-prompt.diff; if the source has
+calculators, port the tools and calculators, write selfCheck, and produce the
+reference JSON from the Python in the source repository; turn the tests into
+checks/cases.json; run `npm test` until it passes; run `npm run golden`; delete
+the template's example files and its AGENTS.md and CLAUDE.md; write the README.
+If I am not available, continue with clearly marked placeholders and list every
+guess in the README.
 ```

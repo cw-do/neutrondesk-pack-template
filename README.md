@@ -42,20 +42,22 @@ is the finished conversion of `eqsans-agent-for-ndesk`. Do it like this:
 5. Answer what it asks. `AGENTS.md` section 4 lists the values it must not
    guess: the ONCat instrument id, the capabilities, the blurb, the opening
    questions, links, maintainers, whether you have guides and a PV list, the
-   licence. It will also show you the diff of the system-prompt split
-   (`checks/system-prompt.diff`) before porting code; read it.
-6. When it reports `npm test` passing, run it yourself, read
-   `checks/golden/` and `checks/reference/README.md`, delete
-   `checks/system-prompt.diff`, and check that the template's example
-   content is gone (`agent/modules/example-topic.md`,
-   `guides/example-guide.md`, the example entries in `pv/catalogue.json`
-   and `checks/cases.json`).
+   licence. It also writes the diff of the system-prompt split to
+   `checks/system-prompt.diff`; read it, that is the one edit that needs a
+   scientist's eye.
+6. When it reports `npm test` passing, run it yourself; if the pack has code,
+   read `checks/golden/` and `checks/reference/README.md`; delete
+   `checks/system-prompt.diff`; and check that the template's own files are
+   gone (`agent/modules/example-topic.md`, `guides/example-guide.md`, the
+   example entries in `pv/catalogue.json` and `checks/cases.json`,
+   `AGENTS.md`, `CLAUDE.md`).
 7. Commit, push to your own repository, and hand the URL to the NeutronDesk
    maintainer. `AGENTS.md` section 5 is the checklist for what "done" means.
 
-A test run of this guide converted `eqsans-agent-for-ndesk` in about 25
-minutes of agent time, including the Python reference; expect the questions
-in step 5 to be where your time goes.
+Test runs of this guide converted `eqsans-agent-for-ndesk` (code, with the
+Python reference) in about 25 minutes of agent time and `usans-agent`
+(knowledge only) in about 7; expect the questions in step 5 to be where your
+time goes.
 
 **You are starting from nothing.** Follow "Start here" below; every example
 file in this repository has its rules written inside it.
