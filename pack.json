@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "EXAMPLE",
+  "facility": "SNS",
+  "name": "EXAMPLE",
+  "shortName": "Example",
+  "fullName": "Example Instrument (replace every field in this file)",
+  "beamline": "BL-0",
+  "blurb": "One line shown under the instrument's name in the picker.",
+  "capabilities": ["runs", "pv", "guides", "agent"],
+  "usesSansTitleConvention": false,
+  "guides": {
+    "order": ["example-guide"],
+    "categories": ["experiment"]
+  },
+  "links": [
+    {
+      "id": "example-home",
+      "label": "Example instrument page",
+      "url": "https://neutrons.ornl.gov/",
+      "what": "What this page is for, in one line. Not a description of its front page.",
+      "group": "start"
+    }
+  ],
+  "agent": {
+    "suggestions": [
+      "What is the latest run in this experiment?",
+      "Which sample environment should I use for a temperature series?"
+    ]
+  },
+  "maintainers": [{ "name": "Your name", "email": "you@example.org" }]
+}

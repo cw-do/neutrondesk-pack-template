@@ -1,0 +1,11 @@
+[
+  {
+    "logName": "daslogs.detectorz",
+    "friendlyName": "Sample-to-detector distance",
+    "description": "Replace with your instrument's own process variables: the handful people search for by concept. Everything the DAS logged is still listed under its real name; this overlay gives these a friendly name and an explanation.",
+    "units": "m",
+    "category": "geometry",
+    "scale": 0.001,
+    "aliases": ["detector distance", "sdd"]
+  }
+]

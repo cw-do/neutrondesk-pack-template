@@ -1,0 +1,13 @@
+{
+  "name": "neutrondesk-pack-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An instrument pack for NeutronDesk. Rename, and replace every example file.",
+  "scripts": {
+    "test": "neutrondesk-pack-check .",
+    "golden": "neutrondesk-pack-check . --write-golden"
+  },
+  "devDependencies": {
+    "neutrondesk-pack-check": "github:cw-do/neutrondesk-pack-check"
+  }
+}

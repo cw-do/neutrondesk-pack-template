@@ -1,0 +1,7 @@
+{
+  "retrieval": [
+    { "q": "what is an example topic and how are modules scored?", "expect": ["example-topic"] },
+    { "q": "where do I put commands so they can be copied", "mustMention": "fenced code blocks" }
+  ],
+  "toolRuns": []
+}
