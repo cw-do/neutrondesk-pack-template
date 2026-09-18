@@ -42,7 +42,7 @@ Read these before starting, in this order:
 | `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4. Put the instrument's own domain words (its id, its reduction tool) in `agent.retrievalTerms` |
 | `src/<id>_agent/tools.py` (tool definitions) | `src/tools.ts` | Same names and descriptions; parameter schemas derived from the pydantic models (section 3.2); port `run` bodies |
 | `src/<id>_agent/*.py` calculators (`qrange.py`, `scriptgen.py`, parsers of the data files) | `src/<name>.ts`, any file names | Port faithfully (section 3) |
-| `src/<id>_agent/scanfunctions.py` | `src/scanFunctions.ts` or similar | Port the **lookup** (name and keyword search). Do not port its file parser: the app splits `agent/scan-functions.txt` at each top-level `def` and hands the pack the list (`api.knowledge.scanFunctions`) |
+| `src/<id>_agent/scanfunctions.py` | `src/scanFunctions.ts` or similar | Port the **lookup** (name and keyword search, with Python's code-point sort order). Do not port its file parser: the app splits `agent/scan-functions.txt` at each top-level `def`, folds duplicate names as a dict would, and hands the pack the list (`api.knowledge.scanFunctions`) |
 | `tests/test_tools.py` and other tests that call tools | `checks/cases.json` `toolRuns` | Section 3.5 says which transfer and which do not |
 | `tests/test_retriever.py` (question → expected document) | `checks/cases.json` `retrieval` | Section 3.5 |
 | `src/<id>_agent/oncat.py`, `catalog_commands.py`, and the prompt's catalogue section | nothing | The app provides `list_ipts_catalog`, `get_latest_run` and `list_experiments` (the last covers `search_ipts_by_member`). Do not port; drop the prompt section that describes catalogue tools |
@@ -117,8 +117,10 @@ bitten, each of which the reference comparison (3.4) will catch:
 - Python `str.strip()` removes U+FEFF (a BOM); JavaScript `trim()` does not.
   Data files may start with one.
 - A Python `dict` built from a list keeps the last of duplicate keys and
-  drops the count; a JavaScript array keeps both. Duplicate `def` names exist
-  in real scan-function files.
+  drops the count; a JavaScript array keeps both. For scan functions the
+  app's loader already folds duplicates that way (first position, last body)
+  before the pack sees `api.knowledge.scanFunctions`, and the check warns
+  about them; for any data file the pack parses itself, the trap is yours.
 - `repr(float)` and JavaScript number formatting differ (`1.0` vs `1`,
   exponent thresholds). Write formatting helpers that reproduce Python's
   output where it reaches a script or a message.
@@ -172,7 +174,11 @@ lift the helpers you need out of it (`ast`, or copy the functions) rather than
 installing the template.
 
 `npm test` then fails until the port matches to 1e-12 (check H28). Iterate on
-the port, never on the reference.
+the port, never on the reference. The comparison is key by key at the top
+level, so the reference covers what the Python can produce and leaves out
+what only the pack has (a label resolver the Python never had, say); the
+check lists the uncovered keys as a warning, which the human should
+recognise as the deliberate additions from 3.1.
 
 ### 3.5 Turn the source tests into cases
 
@@ -221,6 +227,10 @@ still ships a pack that is wrong in a way the reader cannot see.
   one-line `what` for each link.
 - **`agent.suggestions`**: one to six opening questions. Propose them from
   the modules; let the human choose.
+- **`agent.retrievalTerms`**: not a question, but set it. The instrument's id
+  in lower case and the names of its own tools and reduction software
+  (`["eqsans", "drtsans"]` for EQ-SANS). These are the words the source's
+  retriever treated as domain markers, if it had such a list.
 - **`guides/`**: the source agent usually has none. Do not invent guides from
   modules. Ask whether the team has user-facing documents. With none,
   `guides.order` may be empty or list only the app's shared guide

@@ -73,8 +73,12 @@ Then replace, in this order:
 
 1. `pack.json` — the `id` is the instrument's ONCat id exactly as the app's
    instrument picker shows it (`EQSANS`, `CG2`, `PG3`). It is the only thing
-   that links the pack to the instrument. Then every other field.
-2. `agent/system-prompt.md` — your beamline's rules only.
+   that links the pack to the instrument. Then every other field, including
+   `agent.retrievalTerms`: the lower-case words that mark a question as being
+   about your instrument (its id, the name of its reduction tool).
+2. `agent/system-prompt.md` — your beamline's rules only. Every instrument has
+   the Ask assistant; this file is what tunes it. Without it the assistant
+   answers from the catalogue and the shared guides and says so.
 3. `agent/modules/*.md` — one topic per file. Delete `example-topic.md`.
 4. `guides/*.md` — front matter required; list each in `pack.json`
    `guides.order`. Delete `example-guide.md`.
@@ -103,4 +107,9 @@ for a complete example with tools, cases and goldens.
 UTF-8 and LF everywhere (`.gitattributes` is set for that), 2 MB total,
 256 KB per file, no binaries, no `dependencies`, ids and categories from the
 app's vocabularies, and for code: only relative imports plus types from
-`neutrondesk-pack-api`, no network, compiles under strict TypeScript.
+`neutrondesk-pack-api`, no network, compiles under strict TypeScript. A
+scan function defined twice in `agent/scan-functions.txt` is folded to one
+(first position, last body) with a warning, as a Python dict would do it.
+
+Warnings do not fail the check. The template itself passes with one, about
+its placeholder id.
