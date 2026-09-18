@@ -1,7 +1,8 @@
 # NeutronDesk instrument pack template
 
 The starting point for an instrument pack: everything one instrument brings to
-[NeutronDesk](https://github.com/cw-do/neutrondesk) — the assistant's rules and
+NeutronDesk, the ORNL neutron-experiment companion app (its own repository is
+private) — the assistant's rules and
 reference knowledge, the guide library, the friendly names for its process
 variables, links, and optionally code for calculations the assistant should do
 deterministically. The instrument team owns the pack; the app vendors it at
