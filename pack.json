@@ -7,7 +7,7 @@
   "fullName": "Example Instrument (replace every field in this file)",
   "beamline": "BL-0",
   "blurb": "One line shown under the instrument's name in the picker.",
-  "capabilities": ["runs", "pv", "guides", "agent"],
+  "capabilities": ["runs", "pv", "guides"],
   "usesSansTitleConvention": false,
   "guides": {
     "order": ["example-guide"],

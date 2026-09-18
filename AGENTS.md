@@ -39,7 +39,7 @@ Read these before starting, in this order:
 | `corpus/<id>/module*.md` (the reference markdown, wherever it lives) | `agent/modules/` | Copy verbatim, same file names. Do not merge or rewrite |
 | the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file |
 | instrument configuration/calibration files (`.sav` etc.; in `corpus/<id>/…` or `knowledge/…`) | `data/<folder>/` | Copy verbatim. The folder name under `data/` is your choice; the pack's own code reads it by that name (EQSANS uses `data/qrange-configs/`) |
-| `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4 |
+| `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4. Put the instrument's own domain words (its id, its reduction tool) in `agent.retrievalTerms` |
 | `src/<id>_agent/tools.py` (tool definitions) | `src/tools.ts` | Same names and descriptions; parameter schemas derived from the pydantic models (section 3.2); port `run` bodies |
 | `src/<id>_agent/*.py` calculators (`qrange.py`, `scriptgen.py`, parsers of the data files) | `src/<name>.ts`, any file names | Port faithfully (section 3) |
 | `src/<id>_agent/scanfunctions.py` | `src/scanFunctions.ts` or similar | Port the **lookup** (name and keyword search). Do not port its file parser: the app splits `agent/scan-functions.txt` at each top-level `def` and hands the pack the list (`api.knowledge.scanFunctions`) |
@@ -211,7 +211,9 @@ still ships a pack that is wrong in a way the reader cannot see.
   instrument picker shows it (`EQSANS`, `CG2`, `PG3`). The check warns on an
   id it does not know, but it cannot tell `GPSANS` from `CG2`.
 - **`capabilities`**: which of `runs`, `monitor`, `detector`, `pv`, `guides`,
-  `agent`, `reduction` the instrument really has. Claiming `detector` or
+  `reduction` the instrument really has. Every instrument has the Ask
+  assistant, so there is no capability for it. `monitor` is the live SNS
+  monitor and applies to SNS instruments only. Claiming `detector` or
   `reduction` opens screens that need instrument-specific support.
 - **`usesSansTitleConvention`**: whether run titles follow the S-/T- naming
   the app's run classifier assumes. `false` for anything that is not SANS.
