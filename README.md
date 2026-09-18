@@ -102,6 +102,12 @@ default-exports a factory; see FORMAT.md, and
 [neutrondesk-pack-eqsans](https://github.com/cw-do/neutrondesk-pack-eqsans)
 for a complete example with tools, cases and goldens.
 
+`agent/scan-functions.txt` belongs to this category too. The app splits it
+into named functions and hands them to your code; it does not read them
+itself. If you want "what does `runsampleid` take?" answered from the real
+source, copy EQSANS's `scanFunctions.ts` and its two lookup tools. Without
+code, leave the file out and describe your commands in a module.
+
 ## Rules the check enforces
 
 UTF-8 and LF everywhere (`.gitattributes` is set for that), 2 MB total,

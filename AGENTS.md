@@ -37,7 +37,7 @@ Read these before starting, in this order:
 |---|---|---|
 | `system_prompt.md` | `agent/system-prompt.md` | Keep the instrument's own rules; remove what the app already provides (section 2) |
 | `corpus/<id>/module*.md` (the reference markdown, wherever it lives) | `agent/modules/` | Copy verbatim, same file names. Do not merge or rewrite |
-| the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file |
+| the scan-function source (`corpus/<id>/*scanfunctions*.txt` or similar) | `agent/scan-functions.txt` | Copy verbatim, one file. It is only read by the pack's own lookup tools (next rows); if the source has no such file or no such tools, leave it out |
 | instrument configuration/calibration files (`.sav` etc.; in `corpus/<id>/…` or `knowledge/…`) | `data/<folder>/` | Copy verbatim. The folder name under `data/` is your choice; the pack's own code reads it by that name (EQSANS uses `data/qrange-configs/`) |
 | `config.yaml`: instrument name, facility, beamline | `pack.json` | Fill the fields; ask for the ones in section 4. Put the instrument's own domain words (its id, its reduction tool) in `agent.retrievalTerms` |
 | `src/<id>_agent/tools.py` (tool definitions) | `src/tools.ts` | Same names and descriptions; parameter schemas derived from the pydantic models (section 3.2); port `run` bodies |
